@@ -62,7 +62,7 @@
     <div class="container">
         <nav>
             <a href="<?= $baseUrl ?>/product">Produits</a>
-            <a href="<?= $baseUrl ?>/cart">Paniers</a>
+            <a href="<?= $baseUrl ?>/cart">Voir mon panier</a>
         </nav>
 
         <?php echo $content; ?>

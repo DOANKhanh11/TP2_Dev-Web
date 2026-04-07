@@ -174,30 +174,11 @@ class CartPdoDataStore implements DataStoreInterface
         $stmt->execute([$cartId, $productId, $qty, $qty]);
     }
 
-    public function addItem(string $cartId, string $productId, int $quantity = 1): void
+    public function removeItem(string $cartId, string $productId): void
     {
-        // 1️⃣ Vérifier si le produit est déjà dans le panier
         $stmt = $this->pdo->prepare(
-            "SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?"
+            "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?"
         );
         $stmt->execute([$cartId, $productId]);
-        $existing = $stmt->fetch();
-
-        if ($existing) {
-            // 2️⃣ Le produit existe → on incrémente la quantité
-            $stmt = $this->pdo->prepare(
-                "UPDATE cart_items
-             SET quantity = quantity + ?
-             WHERE cart_id = ? AND product_id = ?"
-            );
-            $stmt->execute([$quantity, $cartId, $productId]);
-        } else {
-            // 3️⃣ Le produit n'existe pas → on l'ajoute
-            $stmt = $this->pdo->prepare(
-                "INSERT INTO cart_items (cart_id, product_id, quantity)
-             VALUES (?, ?, ?)"
-            );
-            $stmt->execute([$cartId, $productId, $quantity]);
-        }
     }
 }

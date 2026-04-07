@@ -95,57 +95,10 @@ $routes->add('pdo_product_delete', new Route($pdo_baseUrl.'/product/{id}/delete'
 use Controllers\CartPdoController;
 
 /* ============================================
- * LISTE DES PANIERS
- * ============================================ */
-
-$routes->add('pdo_cart_add_form', new Route(
-    $pdo_baseUrl . '/cart/{id}/add',
-    ['_controller' => [CartPdoController::class, 'addProductForm']],
-    [],
-    [],
-    '',
-    [],
-    ['GET']
-));
-
-$routes->add('pdo_cart_add_product', new Route(
-    $pdo_baseUrl . '/cart/{id}/add',
-    ['_controller' => [CartPdoController::class, 'addProduct']],
-    [],
-    [],
-    '',
-    [],
-    ['POST']
-));
-
-$routes->add('pdo_cart_list', new Route(
-    $pdo_baseUrl . '/cart',
-    ['_controller' => [CartPdoController::class, 'index']],
-    [],
-    [],
-    '',
-    [],
-    ['GET']
-));
-
-/* ============================================
- * CRÉATION D’UN PANIER
- * ============================================ */
-$routes->add('pdo_cart_create', new Route(
-    $pdo_baseUrl . '/cart/create',
-    ['_controller' => [CartPdoController::class, 'create']],
-    [],
-    [],
-    '',
-    [],
-    ['POST']
-));
-
-/* ============================================
- * AFFICHAGE D’UN PANIER
+ * AFFICHAGE DU PANIER
  * ============================================ */
 $routes->add('pdo_cart_show', new Route(
-    $pdo_baseUrl . '/cart/{id}',
+    $pdo_baseUrl . '/cart',
     ['_controller' => [CartPdoController::class, 'show']],
     [],
     [],
@@ -155,24 +108,11 @@ $routes->add('pdo_cart_show', new Route(
 ));
 
 /* ============================================
- * AJOUT D’UN PRODUIT AU PANIER
+ * AJOUT D'UN PRODUIT AU PANIER
  * ============================================ */
 $routes->add('pdo_cart_add_product', new Route(
-    $pdo_baseUrl . '/cart/{id}/add',
+    $pdo_baseUrl . '/cart/add/{productId}',
     ['_controller' => [CartPdoController::class, 'addProduct']],
-    [],
-    [],
-    '',
-    [],
-    ['POST','GET']
-));
-
-/* ============================================
- * SUPPRESSION D’UN PANIER
- * ============================================ */
-$routes->add('pdo_cart_delete', new Route(
-    $pdo_baseUrl . '/cart/{id}/delete',
-    ['_controller' => [CartPdoController::class, 'delete']],
     [],
     [],
     '',
@@ -181,16 +121,30 @@ $routes->add('pdo_cart_delete', new Route(
 ));
 
 /* ============================================
- * EDITION D’UN PANIER
+ * SUPPRESSION D'UN PRODUIT DU PANIER
  * ============================================ */
+$routes->add('pdo_cart_remove_product', new Route(
+    $pdo_baseUrl . '/cart/remove/{productId}',
+    ['_controller' => [CartPdoController::class, 'removeProduct']],
+    [],
+    [],
+    '',
+    [],
+    ['POST']
+));
 
-$routes->add('pdo_cart_edit', new Route($pdo_baseUrl.'/cart/{id}/edit', [
-    '_controller' => [CartPdoController::class, 'edit']
-], [], [], '', [], ['GET']));
-
-$routes->add('pdo_cart_update', new Route($pdo_baseUrl.'/cart/{id}/update', [
-    '_controller' => [CartPdoController::class, 'update']
-], [], [], '', [], ['POST']));
+/* ============================================
+ * MISE À JOUR DE LA QUANTITÉ D'UN PRODUIT
+ * ============================================ */
+$routes->add('pdo_cart_update_quantity', new Route(
+    $pdo_baseUrl . '/cart/update/{productId}',
+    ['_controller' => [CartPdoController::class, 'updateQuantity']],
+    [],
+    [],
+    '',
+    [],
+    ['POST']
+));
 
 // Traitement de la requête
 $request = Request::createFromGlobals();

@@ -2,7 +2,7 @@
 ob_start();
 $prefix = $baseUrl.'/product';
 ?>
-
+    <br>
     <h1>Liste des Produits</h1>
 
     <div class="actions">
@@ -20,6 +20,7 @@ $prefix = $baseUrl.'/product';
             <th>Prix</th>
             <th>Stock</th>
             <th>Date de création</th>
+            <th>Ajouter au panier</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -36,10 +37,17 @@ $prefix = $baseUrl.'/product';
                 <td><?= htmlspecialchars($product['stock'] ?? 0) ?></td>
                 <td><?= htmlspecialchars($product['created_at'] ?? '') ?></td>
                 <td>
-                    <a href="<?= $prefix ?>/<?= $product['id'] ?>/edit" class="btn btn-sm">Modifier</a>
-                    <form method="POST" action="<?= $prefix ?>/<?= $product['id'] ?>/delete" style="display: inline;">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
+                    <?php if (($product['stock'] ?? 0) > 0): ?>
+                    <form method="POST" action="<?= $baseUrl ?>/cart/add/<?= $product['id'] ?>" style="display: inline;">
+                        <input type="number" name="quantity" value="1" min="1" max="<?= $product['stock'] ?>" style="width: 60px;">
+                        <button type="submit" class="btn btn-sm btn-success">Ajouter</button>
                     </form>
+                    <?php else: ?>
+                    <span class="text-muted">Rupture de stock</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <a href="<?= $prefix ?>/<?= $product['id'] ?>/edit" class="btn btn-sm">Modifier</a>
                 </td>
             </tr>
         <?php endforeach; ?>

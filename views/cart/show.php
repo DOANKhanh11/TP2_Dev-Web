@@ -2,17 +2,16 @@
 ob_start();
 $prefix = $baseUrl . '/cart';
 ?>
-
-    <h1>Panier #<?= htmlspecialchars($cart['id']) ?></h1>
+    <br>
+    <h1>Votre Panier</h1>
+    <br>
 
     <div class="actions" style="margin-bottom: 1em;">
-        <a href="<?= $prefix ?>/<?= $cart['id'] ?>/edit" class="btn btn-turquoise">Éditer</a>
-        <a href="<?= $prefix ?>/<?= $cart['id'] ?>/add" class="btn btn-success">Ajouter un produit</a>
-        <a href="<?= $prefix ?>" class="btn btn-warning">Retour à la liste des paniers</a>
+        <a href="<?= $baseUrl ?>/product" class="btn btn-success">Continuer mes achats</a>
     </div>
 
 <?php if (empty($cart['items'])): ?>
-    <p>Ce panier est vide.</p>
+    <p>Votre panier est vide.</p>
 <?php else: ?>
     <table>
         <thead>
@@ -21,6 +20,7 @@ $prefix = $baseUrl . '/cart';
             <th>Prix unitaire</th>
             <th>Quantité</th>
             <th>Total</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -31,15 +31,25 @@ $prefix = $baseUrl . '/cart';
         <tr>
             <td><?= htmlspecialchars($item['name']) ?></td>
             <td><?= number_format($item['price'], 2) ?> €</td>
-            <td><?= $item['quantity'] ?></td>
+            <td>
+                <form method="POST" action="<?= $baseUrl ?>/cart/update/<?= $item['product_id'] ?>" style="display: inline;">
+                    <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="0" style="width: 60px;">
+                    <button type="submit" class="btn btn-sm">Mettre à jour</button>
+                </form>
+            </td>
             <td><?= number_format($item['line_total'], 2) ?> €</td>
+            <td>
+                <form method="POST" action="<?= $baseUrl ?>/cart/remove/<?= $item['product_id'] ?>" style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Retirer ce produit du panier ?')">Retirer</button>
+                </form>
+            </td>
         </tr>
         <?php endforeach; ?>
 
         </tbody>
         <tfoot>
         <tr>
-            <th colspan="3">Total Panier</th>
+            <th colspan="4">Total Panier</th>
             <th><?= number_format($cart['total'], 2) ?> €</th>
         </tr>
         </tfoot>

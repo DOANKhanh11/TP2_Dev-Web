@@ -17,40 +17,57 @@ class CartPdoController extends AbstractCartController
         $this->baseUrl = $params['pdo_baseUrl'];
     }
 
-    public function addProductForm($id)
+    private function getOrCreateCart()
     {
-        // Récupérer le panier
-        $cart = $this->store->getById($id);
+        $cartId = 'default'; // Panier unique
+        $cart = $this->store->getById($cartId);
         if (!$cart) {
-            return $this->view->render('error', ['baseUrl' => $this->baseUrl, 'message' => 'Panier non trouvé']);
+            $cart = $this->store->create([]);
+            $cart['id'] = $cartId;
         }
+        return $cart;
+    }
 
-        // Récupérer tous les produits
-        $productStore = new ProductPdoDataStore('products');
-        $products = $productStore->getAll();
-        return $this->view->render('cart/add', [
+    public function index()
+    {
+        $cart = $this->getOrCreateCart();
+        return new RedirectResponse($this->baseUrl . '/cart');
+    }
+
+    public function show($id = null)
+    {
+        $cart = $this->getOrCreateCart();
+        return $this->view->render('cart/show', [
             'baseUrl' => $this->baseUrl,
-            'cart' => $cart,
-            'products' => $products
+            'cart'    => $cart
         ]);
     }
-    public function addProduct($id)
+
+    public function addProduct(Request $request, $productId)
     {
-        // Récupérer la requête globale
+        $cart = $this->getOrCreateCart();
+        $quantity = $request->request->get('quantity', 1);
+        $this->store->addItem($cart['id'], $productId, (int)$quantity);
+        return new RedirectResponse($this->baseUrl . '/cart');
+    }
 
-        $request = Request::createFromGlobals();
+    public function removeProduct($productId)
+    {
+        $cart = $this->getOrCreateCart();
+        $this->store->removeItem($cart['id'], $productId);
+        return new RedirectResponse($this->baseUrl . '/cart');
+    }
 
-        $cart = $this->store->getById($id);
-        if (!$cart) {
-            return $this->view->render('error', ['baseUrl' => $this->baseUrl, 'message' => 'Panier non trouvé']);
+    public function updateQuantity(Request $request, $productId)
+    {
+        $cart = $this->getOrCreateCart();
+        $quantity = $request->request->get('quantity', 0);
+        if ($quantity <= 0) {
+            $this->store->removeItem($cart['id'], $productId);
+        } else {
+            $this->store->addOrUpdateItem($cart['id'], $productId, (int)$quantity);
         }
-        $selected = $request->request->all('products');
-
-        foreach ($selected as $productId => $data) {
-            if ($data["checked"]==1)
-                $this->store->addItem($id, $productId, intval($data["quantity"]));
-        }
-        return new RedirectResponse($this->baseUrl . "/cart/$id");
+        return new RedirectResponse($this->baseUrl . '/cart');
     }
 
 }
