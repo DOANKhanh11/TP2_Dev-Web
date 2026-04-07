@@ -4,7 +4,16 @@ $prefix = $baseUrl . '/cart';
 ?>
     <br>
     <h1>Votre Panier</h1>
-    <br>
+
+    <?php if (isset($_GET['error'])): ?>
+        <div class="error">
+            <?php if ($_GET['error'] === 'insufficient_stock'): ?>
+                Stock insuffisant ! Quantité disponible : <?= htmlspecialchars($_GET['available'] ?? 0) ?>
+            <?php elseif ($_GET['error'] === 'product_not_found'): ?>
+                Produit introuvable.
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="actions" style="margin-bottom: 1em;">
         <a href="<?= $baseUrl ?>/product" class="btn btn-success">Continuer mes achats</a>

@@ -33,6 +33,10 @@
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f9fa; font-weight: 600; color: #495057; }
         tr:hover { background: #f8f9fa; }
+        tr.low-stock { background: #fff3cd; }
+        tr.low-stock:hover { background: #ffeaa7; }
+        .stock-low { color: #856404; font-weight: bold; }
+        .stock-warning { color: #856404; font-size: 0.8em; margin-left: 5px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; color: #495057; }
         input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }

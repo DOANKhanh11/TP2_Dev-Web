@@ -166,7 +166,7 @@ try {
         $method = $controller[1];
 
         // Préparer les arguments selon la méthode
-        if (in_array($method, ['store', 'update'])) {
+        if (in_array($method, ['store', 'update', 'addProduct', 'updateQuantity'])) {
             // Ces méthodes nécessitent Request en premier paramètre
             $args = array_merge([$request], array_values($parameters));
 
