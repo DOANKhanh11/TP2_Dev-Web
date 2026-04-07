@@ -49,8 +49,14 @@ $routes->add('json_product_delete', new Route($json_baseUrl.'/product/{id}/delet
 ], [], [], '', [], ['POST']));
 
 $routes->add('home', new Route('/', [
-    '_controller' => function() {
-        return new RedirectResponse($json_baseUrl.'/product');
+    '_controller' => function() use ($pdo_baseUrl) {
+        return new RedirectResponse($pdo_baseUrl.'/product');
+    }
+]));
+
+$routes->add('products_alias', new Route('/products', [
+    '_controller' => function() use ($pdo_baseUrl) {
+        return new RedirectResponse($pdo_baseUrl.'/product');
     }
 ]));
 
