@@ -37,9 +37,36 @@ class CartPdoController extends AbstractCartController
     public function show($id = null)
     {
         $cart = $this->getOrCreateCart();
+        $productStore = new ProductPdoDataStore('products');
+        $quantityAdjusted = false;
+
+        // Vérifier chaque article du panier et ajuster si nécessaire
+        if (!empty($cart['items'])) {
+            foreach ($cart['items'] as $item) {
+                $product = $productStore->getById($item['product_id']);
+                
+                if ($product && $item['quantity'] > $product['stock']) {
+                    // La quantité dépasse le stock disponible
+                    if ($product['stock'] > 0) {
+                        // Ajuster à la quantité disponible
+                        $this->store->addOrUpdateItem($cart['id'], $item['product_id'], $product['stock']);
+                        $quantityAdjusted = true;
+                    } else {
+                        // Le produit est rupture de stock, le retirer du panier
+                        $this->store->removeItem($cart['id'], $item['product_id']);
+                        $quantityAdjusted = true;
+                    }
+                }
+            }
+        }
+
+        // Récupérer le panier mis à jour
+        $cart = $this->store->getById($cart['id']);
+
         return $this->view->render('cart/show', [
             'baseUrl' => $this->baseUrl,
-            'cart'    => $cart
+            'cart'    => $cart,
+            'quantityAdjusted' => $quantityAdjusted
         ]);
     }
 
@@ -53,11 +80,11 @@ class CartPdoController extends AbstractCartController
         $product = $productStore->getById($productId);
 
         if (!$product) {
-            // Rediriger avec un message d'erreur
+            // Redirige avec message d'erreur
             return new RedirectResponse($this->baseUrl . '/product?error=product_not_found');
         }
 
-        // Vérifier la quantité déjà dans le panier
+        // Vérifie quantité dans le panier
         $existingQuantity = 0;
         foreach ($cart['items'] as $item) {
             if ($item['product_id'] == $productId) {
@@ -69,7 +96,7 @@ class CartPdoController extends AbstractCartController
         $totalQuantity = $existingQuantity + $quantity;
 
         if ($totalQuantity > $product['stock']) {
-            // Rediriger avec un message d'erreur
+            // Redirige message d'erreur
             return new RedirectResponse($this->baseUrl . '/product?error=insufficient_stock&available=' . $product['stock']);
         }
 
@@ -84,13 +111,14 @@ class CartPdoController extends AbstractCartController
         return new RedirectResponse($this->baseUrl . '/cart');
     }
 
+    // maj qte
     public function updateQuantity(Request $request, $productId)
     {
         $cart = $this->getOrCreateCart();
         $quantity = (int)$request->request->get('quantity', 0);
 
         if ($quantity > 0) {
-            // Vérifier le stock disponible
+            // Vérifier stock dispo
             $productStore = new \Models\ProductPdoDataStore('products');
             $product = $productStore->getById($productId);
 

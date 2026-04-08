@@ -15,6 +15,12 @@ $prefix = $baseUrl . '/cart';
         </div>
     <?php endif; ?>
 
+    <?php if (isset($quantityAdjusted) && $quantityAdjusted): ?>
+        <div style="background: #e7f3ff; color: #0056b3; padding: 12px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #0056b3;">
+            ℹ️ <strong>Mise à jour de votre panier</strong> : La quantité d'un ou plusieurs produits a été ajustée suite à une baisse du stock disponible.
+        </div>
+    <?php endif; ?>
+
     <div class="actions" style="margin-bottom: 1em;">
         <a href="<?= $baseUrl ?>/product" class="btn btn-success">Continuer mes achats</a>
     </div>
