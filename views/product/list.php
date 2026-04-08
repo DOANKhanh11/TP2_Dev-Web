@@ -5,12 +5,15 @@ $filters    = $filters    ?? [];
 $categories = $categories ?? [];
 $origins    = $origins    ?? [];
 ?>
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 
 <h1>☕ Liste des Cafés Vietnamiens</h1>
 
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/gestion_stocks
     <br>
     <h1>Liste des Produits</h1>
 
@@ -114,10 +117,13 @@ $origins    = $origins    ?? [];
 <<<<<<< HEAD
             <th>Date de création</th>
             <th>Quantité</th>
+<<<<<<< HEAD
 =======
             <th>Date création</th>
 >>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
 >>>>>>> Stashed changes
+=======
+>>>>>>> origin/gestion_stocks
             <th>Actions</th>
         </tr>
         </thead>
@@ -132,10 +138,13 @@ $origins    = $origins    ?? [];
 <<<<<<< HEAD
                     <?= htmlspecialchars(mb_strimwidth($product['name'], 0, 30, '...')) ?>
                     <?php if ($lowStock): ?><span class="stock-warning"> ⚠️ Stock faible</span><?php endif; ?>
+<<<<<<< HEAD
 =======
                     <strong><?= htmlspecialchars(mb_strimwidth($product['name'], 0, 30, '...')) ?></strong>
 >>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
 >>>>>>> Stashed changes
+=======
+>>>>>>> origin/gestion_stocks
                 </td>
                 <td title="<?= htmlspecialchars($product['description'] ?? '') ?>">
                     <?= htmlspecialchars(mb_strimwidth($product['description'] ?? '', 0, 30, '...')) ?>
@@ -165,6 +174,7 @@ $origins    = $origins    ?? [];
                     <?php if (($product['stock'] ?? 0) > 0): ?>
                     <form method="POST" action="<?= $baseUrl ?>/cart/add/<?= $product['id'] ?>" style="display: inline;" id="cart_form_<?= $product['id'] ?>">
                         <button type="submit" class="btn btn-sm btn-success">Ajouter</button>
+<<<<<<< HEAD
 =======
                 <td><?= htmlspecialchars($product['category'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($product['origin'] ?? '-') ?></td>
@@ -189,6 +199,8 @@ $origins    = $origins    ?? [];
 =======
 >>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
 >>>>>>> Stashed changes
+=======
+>>>>>>> origin/gestion_stocks
                     </form>
                     <?php else: ?>
                     <span class="text-muted">Rupture de stock</span>

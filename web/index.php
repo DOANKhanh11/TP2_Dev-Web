@@ -12,16 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Controllers\ProductJSonController;
 use Controllers\ProductPdoController;
-use Controllers\CartPdoController;
 
-$params       = require __DIR__ . '/../src/config/params.php';
-$pdo_baseUrl  = $params['pdo_baseUrl'];
-$json_baseUrl = $params['json_baseUrl'];
+$params = require __DIR__ . '/../src/config/params.php';
+$pdo_baseUrl = $params['pdo_baseUrl'];;
+$json_baseUrl = $params['json_baseUrl'];;
 
+// Configuration des routes
 $routes = new RouteCollection();
 
 // ============================================
-// Routes JSON
+// Routes avec ProductJsonDataStore
 // ============================================
 
 $routes->add('json_product_list', new Route($json_baseUrl.'/product', [
@@ -49,9 +49,6 @@ $routes->add('json_product_delete', new Route($json_baseUrl.'/product/{id}/delet
 ], [], [], '', [], ['POST']));
 
 $routes->add('home', new Route('/', [
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
     '_controller' => function() use ($pdo_baseUrl) {
         return new RedirectResponse($pdo_baseUrl.'/product');
     }
@@ -60,16 +57,11 @@ $routes->add('home', new Route('/', [
 $routes->add('products_alias', new Route('/products', [
     '_controller' => function() use ($pdo_baseUrl) {
         return new RedirectResponse($pdo_baseUrl.'/product');
-=======
->>>>>>> Stashed changes
-    '_controller' => function() use ($json_baseUrl) {
-        return new RedirectResponse($json_baseUrl.'/product');
->>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
     }
 ]));
 
 // ============================================
-// Routes PDO Produits
+// Routes avec ProductPdoDataStore
 // ============================================
 
 $routes->add('pdo_product_list', new Route($pdo_baseUrl.'/product', [
@@ -84,11 +76,6 @@ $routes->add('pdo_product_store', new Route($pdo_baseUrl.'/product/store', [
     '_controller' => [ProductPdoController::class, 'store']
 ], [], [], '', [], ['POST']));
 
-// Q2 : Route recherche — AVANT {id} pour éviter conflit
-$routes->add('pdo_product_search', new Route($pdo_baseUrl.'/product/search', [
-    '_controller' => [ProductPdoController::class, 'search']
-], [], [], '', [], ['GET']));
-
 $routes->add('pdo_product_edit', new Route($pdo_baseUrl.'/product/{id}/edit', [
     '_controller' => [ProductPdoController::class, 'edit']
 ], [], [], '', [], ['GET']));
@@ -101,45 +88,12 @@ $routes->add('pdo_product_delete', new Route($pdo_baseUrl.'/product/{id}/delete'
     '_controller' => [ProductPdoController::class, 'delete']
 ], [], [], '', [], ['POST']));
 
-// ============================================
-// Routes PDO Paniers
-// ============================================
 
-$routes->add('pdo_cart_list', new Route($pdo_baseUrl.'/cart', [
-    '_controller' => [CartPdoController::class, 'index']
-], [], [], '', [], ['GET']));
+//---
 
-$routes->add('pdo_cart_create', new Route($pdo_baseUrl.'/cart/create', [
-    '_controller' => [CartPdoController::class, 'create']
-], [], [], '', [], ['POST']));
 
-$routes->add('pdo_cart_add_form', new Route($pdo_baseUrl.'/cart/{id}/add', [
-    '_controller' => [CartPdoController::class, 'addProductForm']
-], [], [], '', [], ['GET']));
+use Controllers\CartPdoController;
 
-<<<<<<< Updated upstream
-$routes->add('pdo_cart_add_product', new Route($pdo_baseUrl.'/cart/{id}/add', [
-    '_controller' => [CartPdoController::class, 'addProduct']
-], [], [], '', [], ['POST']));
-
-$routes->add('pdo_cart_show', new Route($pdo_baseUrl.'/cart/{id}', [
-    '_controller' => [CartPdoController::class, 'show']
-], [], [], '', [], ['GET']));
-
-$routes->add('pdo_cart_delete', new Route($pdo_baseUrl.'/cart/{id}/delete', [
-    '_controller' => [CartPdoController::class, 'delete']
-], [], [], '', [], ['POST']));
-
-$routes->add('pdo_cart_edit', new Route($pdo_baseUrl.'/cart/{id}/edit', [
-    '_controller' => [CartPdoController::class, 'edit']
-], [], [], '', [], ['GET']));
-
-$routes->add('pdo_cart_update', new Route($pdo_baseUrl.'/cart/{id}/update', [
-    '_controller' => [CartPdoController::class, 'update']
-], [], [], '', [], ['POST']));
-
-=======
-<<<<<<< HEAD
 /* ============================================
  * AFFICHAGE DU PANIER
  * ============================================ */
@@ -178,19 +132,6 @@ $routes->add('pdo_cart_remove_product', new Route(
     [],
     ['POST']
 ));
-=======
-$routes->add('pdo_cart_add_product', new Route($pdo_baseUrl.'/cart/{id}/add', [
-    '_controller' => [CartPdoController::class, 'addProduct']
-], [], [], '', [], ['POST']));
-
-$routes->add('pdo_cart_show', new Route($pdo_baseUrl.'/cart/{id}', [
-    '_controller' => [CartPdoController::class, 'show']
-], [], [], '', [], ['GET']));
-
-$routes->add('pdo_cart_delete', new Route($pdo_baseUrl.'/cart/{id}/delete', [
-    '_controller' => [CartPdoController::class, 'delete']
-], [], [], '', [], ['POST']));
->>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
 
 /* ============================================
  * MISE À JOUR DE LA QUANTITÉ D'UN PRODUIT
@@ -205,11 +146,7 @@ $routes->add('pdo_cart_update_quantity', new Route(
     ['POST']
 ));
 
->>>>>>> Stashed changes
-// ============================================
 // Traitement de la requête
-// ============================================
-
 $request = Request::createFromGlobals();
 $context = new RequestContext();
 $context->fromRequest($request);
@@ -218,7 +155,7 @@ $matcher = new UrlMatcher($routes, $context);
 
 try {
     $parameters = $matcher->match($request->getPathInfo());
-
+    //print_r($parameters);die;
     $controller = $parameters['_controller'];
     unset($parameters['_controller'], $parameters['_route']);
 
@@ -228,21 +165,13 @@ try {
         $controllerInstance = new $controller[0]();
         $method = $controller[1];
 
-<<<<<<< Updated upstream
-        // Méthodes qui nécessitent Request en premier paramètre
-        if (in_array($method, ['store', 'update', 'search', 'addProduct'])) {
-=======
-<<<<<<< HEAD
         // Préparer les arguments selon la méthode
         if (in_array($method, ['store', 'update', 'addProduct', 'updateQuantity'])) {
             // Ces méthodes nécessitent Request en premier paramètre
-=======
-        // Méthodes qui nécessitent Request en premier paramètre
-        if (in_array($method, ['store', 'update', 'search', 'addProduct'])) {
->>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
->>>>>>> Stashed changes
             $args = array_merge([$request], array_values($parameters));
+
         } else {
+            // Ces méthodes (index, create, edit, delete) ne prennent pas Request
             $args = array_values($parameters);
         }
 
@@ -252,7 +181,9 @@ try {
 } catch (ResourceNotFoundException $e) {
     $response = new Response('<h1>404 - Page non trouvée</h1>', 404);
 } catch (Exception $e) {
-    $response = new Response('<h1>Erreur : ' . htmlspecialchars($e->getMessage()) . '</h1>', 500);
+    print_r($e);die;
+
+    $response = new Response('<h1>Erreur: ' . htmlspecialchars($e->getMessage()) . '</h1>', 500);
 }
 
 $response->send();
