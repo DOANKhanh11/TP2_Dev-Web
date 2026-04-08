@@ -1,6 +1,6 @@
 <?php
 ob_start();
-$prefix = $_GET["baseUrl"].'/product';
+$prefix = $baseUrl.'/product';
 ?>
 
     <h1>Créer un Produit</h1>

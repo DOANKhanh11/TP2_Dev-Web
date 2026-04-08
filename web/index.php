@@ -49,8 +49,22 @@ $routes->add('json_product_delete', new Route($json_baseUrl.'/product/{id}/delet
 ], [], [], '', [], ['POST']));
 
 $routes->add('home', new Route('/', [
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+    '_controller' => function() use ($pdo_baseUrl) {
+        return new RedirectResponse($pdo_baseUrl.'/product');
+    }
+]));
+
+$routes->add('products_alias', new Route('/products', [
+    '_controller' => function() use ($pdo_baseUrl) {
+        return new RedirectResponse($pdo_baseUrl.'/product');
+=======
+>>>>>>> Stashed changes
     '_controller' => function() use ($json_baseUrl) {
         return new RedirectResponse($json_baseUrl.'/product');
+>>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
     }
 ]));
 
@@ -103,6 +117,7 @@ $routes->add('pdo_cart_add_form', new Route($pdo_baseUrl.'/cart/{id}/add', [
     '_controller' => [CartPdoController::class, 'addProductForm']
 ], [], [], '', [], ['GET']));
 
+<<<<<<< Updated upstream
 $routes->add('pdo_cart_add_product', new Route($pdo_baseUrl.'/cart/{id}/add', [
     '_controller' => [CartPdoController::class, 'addProduct']
 ], [], [], '', [], ['POST']));
@@ -123,6 +138,74 @@ $routes->add('pdo_cart_update', new Route($pdo_baseUrl.'/cart/{id}/update', [
     '_controller' => [CartPdoController::class, 'update']
 ], [], [], '', [], ['POST']));
 
+=======
+<<<<<<< HEAD
+/* ============================================
+ * AFFICHAGE DU PANIER
+ * ============================================ */
+$routes->add('pdo_cart_show', new Route(
+    $pdo_baseUrl . '/cart',
+    ['_controller' => [CartPdoController::class, 'show']],
+    [],
+    [],
+    '',
+    [],
+    ['GET']
+));
+
+/* ============================================
+ * AJOUT D'UN PRODUIT AU PANIER
+ * ============================================ */
+$routes->add('pdo_cart_add_product', new Route(
+    $pdo_baseUrl . '/cart/add/{productId}',
+    ['_controller' => [CartPdoController::class, 'addProduct']],
+    [],
+    [],
+    '',
+    [],
+    ['POST']
+));
+
+/* ============================================
+ * SUPPRESSION D'UN PRODUIT DU PANIER
+ * ============================================ */
+$routes->add('pdo_cart_remove_product', new Route(
+    $pdo_baseUrl . '/cart/remove/{productId}',
+    ['_controller' => [CartPdoController::class, 'removeProduct']],
+    [],
+    [],
+    '',
+    [],
+    ['POST']
+));
+=======
+$routes->add('pdo_cart_add_product', new Route($pdo_baseUrl.'/cart/{id}/add', [
+    '_controller' => [CartPdoController::class, 'addProduct']
+], [], [], '', [], ['POST']));
+
+$routes->add('pdo_cart_show', new Route($pdo_baseUrl.'/cart/{id}', [
+    '_controller' => [CartPdoController::class, 'show']
+], [], [], '', [], ['GET']));
+
+$routes->add('pdo_cart_delete', new Route($pdo_baseUrl.'/cart/{id}/delete', [
+    '_controller' => [CartPdoController::class, 'delete']
+], [], [], '', [], ['POST']));
+>>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
+
+/* ============================================
+ * MISE À JOUR DE LA QUANTITÉ D'UN PRODUIT
+ * ============================================ */
+$routes->add('pdo_cart_update_quantity', new Route(
+    $pdo_baseUrl . '/cart/update/{productId}',
+    ['_controller' => [CartPdoController::class, 'updateQuantity']],
+    [],
+    [],
+    '',
+    [],
+    ['POST']
+));
+
+>>>>>>> Stashed changes
 // ============================================
 // Traitement de la requête
 // ============================================
@@ -145,8 +228,19 @@ try {
         $controllerInstance = new $controller[0]();
         $method = $controller[1];
 
+<<<<<<< Updated upstream
         // Méthodes qui nécessitent Request en premier paramètre
         if (in_array($method, ['store', 'update', 'search', 'addProduct'])) {
+=======
+<<<<<<< HEAD
+        // Préparer les arguments selon la méthode
+        if (in_array($method, ['store', 'update', 'addProduct', 'updateQuantity'])) {
+            // Ces méthodes nécessitent Request en premier paramètre
+=======
+        // Méthodes qui nécessitent Request en premier paramètre
+        if (in_array($method, ['store', 'update', 'search', 'addProduct'])) {
+>>>>>>> a2a6c0c68821726fcc7ee093f8e7470435425688
+>>>>>>> Stashed changes
             $args = array_merge([$request], array_values($parameters));
         } else {
             $args = array_values($parameters);

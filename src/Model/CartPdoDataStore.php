@@ -113,9 +113,9 @@ class CartPdoDataStore implements DataStoreInterface
         return $cart;
     }
 
-    public function create($data = [])
+    public function create($data = [], $customId = null)
     {
-        $id = uniqid();
+        $id = $customId ?? uniqid();
         $createdAt = date('Y-m-d H:i:s');
 
         $stmt = $this->pdo->prepare(
@@ -164,6 +164,33 @@ class CartPdoDataStore implements DataStoreInterface
 
     /* ================= ITEMS ================= */
 
+    public function addItem(string $cartId, string $productId, int $quantity = 1): void
+    {
+        // Vérifier si le produit est déjà dans le panier
+        $stmt = $this->pdo->prepare(
+            "SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?"
+        );
+        $stmt->execute([$cartId, $productId]);
+        $existing = $stmt->fetch();
+
+        if ($existing) {
+            // Le produit existe → on incrémente la quantité
+            $stmt = $this->pdo->prepare(
+                "UPDATE cart_items
+                 SET quantity = quantity + ?
+                 WHERE cart_id = ? AND product_id = ?"
+            );
+            $stmt->execute([$quantity, $cartId, $productId]);
+        } else {
+            // Le produit n'existe pas → on l'ajoute
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO cart_items (cart_id, product_id, quantity)
+                 VALUES (?, ?, ?)"
+            );
+            $stmt->execute([$cartId, $productId, $quantity]);
+        }
+    }
+
     public function addOrUpdateItem(string $cartId, string $productId, int $qty): void
     {
         $stmt = $this->pdo->prepare(
@@ -174,30 +201,11 @@ class CartPdoDataStore implements DataStoreInterface
         $stmt->execute([$cartId, $productId, $qty, $qty]);
     }
 
-    public function addItem(string $cartId, string $productId, int $quantity = 1): void
+    public function removeItem(string $cartId, string $productId): void
     {
-        // 1️⃣ Vérifier si le produit est déjà dans le panier
         $stmt = $this->pdo->prepare(
-            "SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?"
+            "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?"
         );
         $stmt->execute([$cartId, $productId]);
-        $existing = $stmt->fetch();
-
-        if ($existing) {
-            // 2️⃣ Le produit existe → on incrémente la quantité
-            $stmt = $this->pdo->prepare(
-                "UPDATE cart_items
-             SET quantity = quantity + ?
-             WHERE cart_id = ? AND product_id = ?"
-            );
-            $stmt->execute([$quantity, $cartId, $productId]);
-        } else {
-            // 3️⃣ Le produit n'existe pas → on l'ajoute
-            $stmt = $this->pdo->prepare(
-                "INSERT INTO cart_items (cart_id, product_id, quantity)
-             VALUES (?, ?, ?)"
-            );
-            $stmt->execute([$cartId, $productId, $quantity]);
-        }
     }
 }
