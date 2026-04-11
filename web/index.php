@@ -12,16 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Controllers\ProductJSonController;
 use Controllers\ProductPdoController;
+use Controllers\CartPdoController;
 
-$params = require __DIR__ . '/../src/config/params.php';
-$pdo_baseUrl = $params['pdo_baseUrl'];;
-$json_baseUrl = $params['json_baseUrl'];;
+$params      = require __DIR__ . '/../src/config/params.php';
+$pdo_baseUrl  = $params['pdo_baseUrl'];
+$json_baseUrl = $params['json_baseUrl'];
 
-// Configuration des routes
 $routes = new RouteCollection();
 
 // ============================================
-// Routes avec ProductJsonDataStore
+// Routes JSON
 // ============================================
 
 $routes->add('json_product_list', new Route($json_baseUrl.'/product', [
@@ -61,7 +61,7 @@ $routes->add('products_alias', new Route('/products', [
 ]));
 
 // ============================================
-// Routes avec ProductPdoDataStore
+// Routes PDO Produits
 // ============================================
 
 $routes->add('pdo_product_list', new Route($pdo_baseUrl.'/product', [
@@ -76,6 +76,11 @@ $routes->add('pdo_product_store', new Route($pdo_baseUrl.'/product/store', [
     '_controller' => [ProductPdoController::class, 'store']
 ], [], [], '', [], ['POST']));
 
+// Q2 : Route recherche — AVANT {id} pour éviter conflit
+$routes->add('pdo_product_search', new Route($pdo_baseUrl.'/product/search', [
+    '_controller' => [ProductPdoController::class, 'search']
+], [], [], '', [], ['GET']));
+
 $routes->add('pdo_product_edit', new Route($pdo_baseUrl.'/product/{id}/edit', [
     '_controller' => [ProductPdoController::class, 'edit']
 ], [], [], '', [], ['GET']));
@@ -88,65 +93,30 @@ $routes->add('pdo_product_delete', new Route($pdo_baseUrl.'/product/{id}/delete'
     '_controller' => [ProductPdoController::class, 'delete']
 ], [], [], '', [], ['POST']));
 
+// ============================================
+// Routes PDO Panier (version originale du team)
+// ============================================
 
-//---
+$routes->add('pdo_cart_show', new Route($pdo_baseUrl.'/cart', [
+    '_controller' => [CartPdoController::class, 'show']
+], [], [], '', [], ['GET']));
 
+$routes->add('pdo_cart_add_product', new Route($pdo_baseUrl.'/cart/add/{productId}', [
+    '_controller' => [CartPdoController::class, 'addProduct']
+], [], [], '', [], ['POST']));
 
-use Controllers\CartPdoController;
+$routes->add('pdo_cart_remove_product', new Route($pdo_baseUrl.'/cart/remove/{productId}', [
+    '_controller' => [CartPdoController::class, 'removeProduct']
+], [], [], '', [], ['POST']));
 
-/* ============================================
- * AFFICHAGE DU PANIER
- * ============================================ */
-$routes->add('pdo_cart_show', new Route(
-    $pdo_baseUrl . '/cart',
-    ['_controller' => [CartPdoController::class, 'show']],
-    [],
-    [],
-    '',
-    [],
-    ['GET']
-));
+$routes->add('pdo_cart_update_quantity', new Route($pdo_baseUrl.'/cart/update/{productId}', [
+    '_controller' => [CartPdoController::class, 'updateQuantity']
+], [], [], '', [], ['POST']));
 
-/* ============================================
- * AJOUT D'UN PRODUIT AU PANIER
- * ============================================ */
-$routes->add('pdo_cart_add_product', new Route(
-    $pdo_baseUrl . '/cart/add/{productId}',
-    ['_controller' => [CartPdoController::class, 'addProduct']],
-    [],
-    [],
-    '',
-    [],
-    ['POST']
-));
-
-/* ============================================
- * SUPPRESSION D'UN PRODUIT DU PANIER
- * ============================================ */
-$routes->add('pdo_cart_remove_product', new Route(
-    $pdo_baseUrl . '/cart/remove/{productId}',
-    ['_controller' => [CartPdoController::class, 'removeProduct']],
-    [],
-    [],
-    '',
-    [],
-    ['POST']
-));
-
-/* ============================================
- * MISE À JOUR DE LA QUANTITÉ D'UN PRODUIT
- * ============================================ */
-$routes->add('pdo_cart_update_quantity', new Route(
-    $pdo_baseUrl . '/cart/update/{productId}',
-    ['_controller' => [CartPdoController::class, 'updateQuantity']],
-    [],
-    [],
-    '',
-    [],
-    ['POST']
-));
-
+// ============================================
 // Traitement de la requête
+// ============================================
+
 $request = Request::createFromGlobals();
 $context = new RequestContext();
 $context->fromRequest($request);
@@ -155,7 +125,7 @@ $matcher = new UrlMatcher($routes, $context);
 
 try {
     $parameters = $matcher->match($request->getPathInfo());
-    //print_r($parameters);die;
+
     $controller = $parameters['_controller'];
     unset($parameters['_controller'], $parameters['_route']);
 
@@ -165,13 +135,9 @@ try {
         $controllerInstance = new $controller[0]();
         $method = $controller[1];
 
-        // Préparer les arguments selon la méthode
-        if (in_array($method, ['store', 'update', 'addProduct', 'updateQuantity'])) {
-            // Ces méthodes nécessitent Request en premier paramètre
+        if (in_array($method, ['store', 'update', 'search', 'addProduct', 'updateQuantity'])) {
             $args = array_merge([$request], array_values($parameters));
-
         } else {
-            // Ces méthodes (index, create, edit, delete) ne prennent pas Request
             $args = array_values($parameters);
         }
 
@@ -181,8 +147,7 @@ try {
 } catch (ResourceNotFoundException $e) {
     $response = new Response('<h1>404 - Page non trouvée</h1>', 404);
 } catch (Exception $e) {
-    print_r($e);die;
-
+    print_r($e); die;
     $response = new Response('<h1>Erreur: ' . htmlspecialchars($e->getMessage()) . '</h1>', 500);
 }
 

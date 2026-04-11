@@ -1,0 +1,11 @@
+[33m7fd3f11[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mQ2[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;31morigin/Filtre[m[33m, [m[1;32mmain[m[33m, [m[1;32mFiltre[m[33m)[m Merge remote-tracking branch 'origin/gestion_stocks'
+[33m2819b8f[m Prépa merge
+[33mf63ca4e[m commit gitignore
+[33m5b193cb[m Préparation merge gestion_stock et main
+[33m03e63b4[m[33m ([m[1;31morigin/gestion_stocks[m[33m)[m Gestion des stocks : modification du panier si le stock a baissé et que le restant est inférieur à la quantité ajoutée au panier par l'utilisateur + ajout d'un message d'information
+[33m67aeed9[m Ajout d'un fichier gitignore pour ne pas commit le dossier vendor
+[33m80230d8[m Gestion stock (ajout quantités de produit au panier). Reste à faire : vérifier le reste des stocks etc
+[33ma2a6c0c[m Q2: formulaire de recherche (index & view)
+[33m9a827ab[m Correction erreurs de routage + modifications vues
+[33m937643e[m Correction erreurs url
+[33m0e10023[m initial commit
