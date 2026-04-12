@@ -36,4 +36,11 @@ $prefix = $baseUrl.'/product';
         </div>
     </form>
 
+    <div class="actions" style="margin-top: 20px;">
+        <form method="POST" action="<?= $prefix ?>/<?= $product['id'] ?>/delete" style="display:inline">
+            <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>
+        </form>
+    </div>
+
 <?php $content = ob_get_clean(); include __DIR__.'/../layout.php'; ?>
