@@ -118,7 +118,7 @@ $prefix = $baseUrl.'/product';
                         <button type="submit" class="btn btn-sm btn-success">Ajouter</button>
                     </form>
                     <?php else: ?>
-                    <span class="text-muted">Rupture de stock</span>
+                    <br><span class="text-muted">Rupture de stock</span>
                     <?php endif; ?>
                 </td>
             </tr>
