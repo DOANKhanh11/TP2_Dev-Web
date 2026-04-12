@@ -13,10 +13,11 @@ if (php_sapi_name() !== 'cli') {
 }
 
 // Vérif de sécurité : confirmation manuelle
-echo "Attention : Ce script va créer des tables (si elles n'existent pas) et insérer des données fictives de test.\n";
-echo "Assurez-vous d'être en environnement de développement et que la base de données est sauvegardée.\n";
+echo "Ce script va créer des tables (si elles n'existent pas) et insérer des données de test.\n";
 echo "Continuer ? (oui/non) : ";
+// Permet l'entrée clavier de l'utilisateur depuis la ligne de commande
 $handle = fopen("php://stdin", "r");
+// Lit la réponse de l'utilisateur (en nettoyant les espaces)
 $line = trim(fgets($handle));
 if ($line !== 'oui') {
     die("Script annulé.\n");
@@ -58,21 +59,11 @@ $pdo->exec("
 ");
 
 $pdo->exec("
-    CREATE TABLE IF NOT EXISTS carts (
-        id VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PRIMARY KEY,
-        created_at DATETIME,
-        updated_at DATETIME
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-");
-
-$pdo->exec("
     CREATE TABLE IF NOT EXISTS cart_items (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        cart_id VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
         product_id VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
         quantity INT DEFAULT 1,
-        UNIQUE(cart_id, product_id),
-        INDEX idx_cart (cart_id),
+        UNIQUE(product_id),
         INDEX idx_product (product_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ");
@@ -109,22 +100,8 @@ for ($i = 0; $i < 50; $i++) {
     echo "Product $i: {$productData['name']}\n";
 }
 
-// Création paniers
-echo "Création du panier par défaut\n";
-$cartId = 'default';
-$cartData = [
-    'id' => $cartId,
-    'created_at' => $faker->dateTimeThisYear()->format('Y-m-d H:i:s'),
-    'updated_at' => $faker->dateTimeThisYear()->format('Y-m-d H:i:s'),
-];
-
-// Insertion panier
-$stmt = $pdo->prepare("
-    INSERT INTO carts (id, created_at, updated_at)
-    VALUES (?, ?, ?)
-    ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)
-");
-$stmt->execute(array_values($cartData));
+// Ajout des produits dans le panier par défaut
+echo "Remplissage du panier par défaut\n";
 
 // Ajouts randoms de produits dans le panier
 $numItems = $faker->numberBetween(10, 20);
@@ -133,11 +110,11 @@ $selectedProducts = $faker->randomElements($productIds, $numItems, false);
 foreach ($selectedProducts as $productId) {
     $quantity = $faker->numberBetween(1, 3);
     $stmt = $pdo->prepare("
-        INSERT INTO cart_items (cart_id, product_id, quantity)
-        VALUES (?, ?, ?)
+        INSERT INTO cart_items (product_id, quantity)
+        VALUES (?, ?)
         ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
     ");
-    $stmt->execute([$cartId, $productId, $quantity]);
+    $stmt->execute([$productId, $quantity]);
 }
 
 echo "Panier créé avec $numItems produits\n";

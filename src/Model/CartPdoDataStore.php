@@ -6,7 +6,6 @@ use Models\DataStoreInterface;
 class CartPdoDataStore implements DataStoreInterface
 {
     private $pdo;
-    private $table = 'carts';
 
     public function __construct()
     {
@@ -27,31 +26,13 @@ class CartPdoDataStore implements DataStoreInterface
     private function initTables()
     {
         $this->pdo->exec("
-        CREATE TABLE IF NOT EXISTS carts (
-            id VARCHAR(255)
-                CHARACTER SET utf8mb4
-                COLLATE utf8mb4_unicode_ci
-                PRIMARY KEY,
-            created_at DATETIME,
-            updated_at DATETIME
-        )
-        ENGINE=InnoDB
-        DEFAULT CHARSET=utf8mb4
-        COLLATE=utf8mb4_unicode_ci
-    ");
-
-        $this->pdo->exec("
         CREATE TABLE IF NOT EXISTS cart_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            cart_id VARCHAR(255)
-                CHARACTER SET utf8mb4
-                COLLATE utf8mb4_unicode_ci,
             product_id VARCHAR(255)
                 CHARACTER SET utf8mb4
                 COLLATE utf8mb4_unicode_ci,
             quantity INT DEFAULT 1,
-            UNIQUE(cart_id, product_id),
-            INDEX idx_cart (cart_id),
+            UNIQUE(product_id),
             INDEX idx_product (product_id)
         )
         ENGINE=InnoDB
@@ -64,29 +45,16 @@ class CartPdoDataStore implements DataStoreInterface
 
     public function getAll()
     {
-        $stmt = $this->pdo->query("SELECT * FROM carts ORDER BY created_at DESC");
-        $carts = $stmt->fetchAll();
-
-        $items = [];
-        foreach ($carts as $cart) {
-            $items[$cart['id']] = $this->getById($cart['id']);
-        }
-        return $items;
+        return ['default' => $this->getById('default')];
     }
 
     public function getById($id)
     {
-        // 1️⃣ Récupérer le panier
-        $stmt = $this->pdo->prepare("SELECT * FROM carts WHERE id = ?");
-        $stmt->execute([$id]);
-        $cart = $stmt->fetch();
-
-        if (!$cart) {
+        if ($id !== 'default') {
             return null;
         }
 
-        // 2️⃣ Récupérer les items avec les infos produits
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->pdo->query("
         SELECT 
             ci.product_id,
             p.name,
@@ -95,71 +63,54 @@ class CartPdoDataStore implements DataStoreInterface
             (p.price * ci.quantity) AS line_total
         FROM cart_items ci
         JOIN products p ON p.id = ci.product_id
-        WHERE ci.cart_id = ?
     ");
-        $stmt->execute([$id]);
-
         $items = $stmt->fetchAll();
 
-        // 3️⃣ Calcul du total du panier
         $total = 0;
         foreach ($items as $item) {
             $total += $item['line_total'];
         }
 
-        $cart['items'] = $items;
-        $cart['total'] = $total;
-
-        return $cart;
-    }
-
-    public function create($data = [], $customId = null)
-    {
-        $id = $customId ?? uniqid();
-        $createdAt = date('Y-m-d H:i:s');
-
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO carts (id, created_at) VALUES (?, ?)"
-        );
-        $stmt->execute([$id, $createdAt]);
-
         return [
-            'id' => $id,
-            'items' => [],
-            'created_at' => $createdAt,
-            'updated_at' => null
+            'id' => 'default',
+            'items' => $items,
+            'total' => $total
         ];
     }
 
-    public function update($id, $data): array|null
+    public function create(array $data = [], $customId = null)
     {
-        $cart = $this->getById($id);
-        if (!$cart) {
+        // Avec un seul panier, on réinitialise simplement le contenu existant
+        $this->pdo->exec("DELETE FROM cart_items");
+
+        return $this->getById('default');
+    }
+
+    public function update(string $id, array $data): array|null
+    {
+        if ($id !== 'default') {
             return null;
         }
 
-        // gestion des items
         if (isset($data['items'])) {
             foreach ($data['items'] as $item) {
                 $this->addOrUpdateItem($id, $item['product_id'], $item['quantity']);
             }
         }
 
-        $updatedAt = date('Y-m-d H:i:s');
-        $stmt = $this->pdo->prepare(
-            "UPDATE carts SET updated_at = ? WHERE id = ?"
-        );
-        $stmt->execute([$updatedAt, $id]);
-
-        return $this->getById($id);
+        return $this->getById('default');
     }
 
     public function delete(string $id): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM carts WHERE id = ?");
-        $stmt->execute([$id]);
+        if ($id !== 'default') {
+            return false;
+        }
 
-        return $stmt->rowCount() > 0;
+        $stmt = $this->pdo->prepare("DELETE FROM cart_items");
+        $stmt->execute();
+
+        return true;
     }
 
     /* ================= ITEMS ================= */
@@ -168,9 +119,9 @@ class CartPdoDataStore implements DataStoreInterface
     {
         // Vérifier si le produit est déjà dans le panier
         $stmt = $this->pdo->prepare(
-            "SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?"
+            "SELECT quantity FROM cart_items WHERE product_id = ?"
         );
-        $stmt->execute([$cartId, $productId]);
+        $stmt->execute([$productId]);
         $existing = $stmt->fetch();
 
         if ($existing) {
@@ -178,34 +129,34 @@ class CartPdoDataStore implements DataStoreInterface
             $stmt = $this->pdo->prepare(
                 "UPDATE cart_items
                  SET quantity = quantity + ?
-                 WHERE cart_id = ? AND product_id = ?"
+                 WHERE product_id = ?"
             );
-            $stmt->execute([$quantity, $cartId, $productId]);
+            $stmt->execute([$quantity, $productId]);
         } else {
             // Le produit n'existe pas → on l'ajoute
             $stmt = $this->pdo->prepare(
-                "INSERT INTO cart_items (cart_id, product_id, quantity)
-                 VALUES (?, ?, ?)"
+                "INSERT INTO cart_items (product_id, quantity)
+                 VALUES (?, ?)"
             );
-            $stmt->execute([$cartId, $productId, $quantity]);
+            $stmt->execute([$productId, $quantity]);
         }
     }
 
     public function addOrUpdateItem(string $cartId, string $productId, int $qty): void
     {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO cart_items (cart_id, product_id, quantity)
-             VALUES (?, ?, ?)
+            "INSERT INTO cart_items (product_id, quantity)
+             VALUES (?, ?)
              ON DUPLICATE KEY UPDATE quantity = ?"
         );
-        $stmt->execute([$cartId, $productId, $qty, $qty]);
+        $stmt->execute([$productId, $qty, $qty]);
     }
 
     public function removeItem(string $cartId, string $productId): void
     {
         $stmt = $this->pdo->prepare(
-            "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?"
+            "DELETE FROM cart_items WHERE product_id = ?"
         );
-        $stmt->execute([$cartId, $productId]);
+        $stmt->execute([$productId]);
     }
 }
