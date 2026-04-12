@@ -49,11 +49,11 @@ class CartPdoController extends AbstractCartController
                     // La quantité dépasse le stock disponible
                     if ($product['stock'] > 0) {
                         // Ajuster à la quantité disponible
-                        $this->store->addOrUpdateItem($cart['id'], $item['product_id'], $product['stock']);
+                        $this->store->addOrUpdateItem($item['product_id'], $product['stock']);
                         $quantityAdjusted = true;
                     } else {
                         // Le produit est rupture de stock, le retirer du panier
-                        $this->store->removeItem($cart['id'], $item['product_id']);
+                        $this->store->removeItem($item['product_id']);
                         $quantityAdjusted = true;
                     }
                 }
@@ -100,14 +100,14 @@ class CartPdoController extends AbstractCartController
             return new RedirectResponse($this->baseUrl . '/product?error=insufficient_stock&available=' . $product['stock']);
         }
 
-        $this->store->addItem($cart['id'], $productId, $quantity);
+        $this->store->addItem($productId, $quantity);
         return new RedirectResponse($this->baseUrl . '/product?success=product_added');
     }
 
     public function removeProduct($productId)
     {
         $cart = $this->getOrCreateCart();
-        $this->store->removeItem($cart['id'], $productId);
+        $this->store->removeItem($productId);
         return new RedirectResponse($this->baseUrl . '/cart');
     }
 
@@ -132,9 +132,9 @@ class CartPdoController extends AbstractCartController
         }
 
         if ($quantity <= 0) {
-            $this->store->removeItem($cart['id'], $productId);
+            $this->store->removeItem($productId);
         } else {
-            $this->store->addOrUpdateItem($cart['id'], $productId, $quantity);
+            $this->store->addOrUpdateItem($productId, $quantity);
         }
         return new RedirectResponse($this->baseUrl . '/cart');
     }

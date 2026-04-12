@@ -41,7 +41,7 @@ class CartPdoDataStore implements DataStoreInterface
     ");
     }
 
-    /* ================= CART ================= */
+    // Panier
 
     public function getAll()
     {
@@ -94,7 +94,7 @@ class CartPdoDataStore implements DataStoreInterface
 
         if (isset($data['items'])) {
             foreach ($data['items'] as $item) {
-                $this->addOrUpdateItem($id, $item['product_id'], $item['quantity']);
+                $this->addOrUpdateItem($item['product_id'], $item['quantity']);
             }
         }
 
@@ -113,9 +113,9 @@ class CartPdoDataStore implements DataStoreInterface
         return true;
     }
 
-    /* ================= ITEMS ================= */
+    // Produits
 
-    public function addItem(string $cartId, string $productId, int $quantity = 1): void
+    public function addItem(string $productId, int $quantity = 1): void
     {
         // Vérifier si le produit est déjà dans le panier
         $stmt = $this->pdo->prepare(
@@ -142,7 +142,7 @@ class CartPdoDataStore implements DataStoreInterface
         }
     }
 
-    public function addOrUpdateItem(string $cartId, string $productId, int $qty): void
+    public function addOrUpdateItem(string $productId, int $qty): void
     {
         $stmt = $this->pdo->prepare(
             "INSERT INTO cart_items (product_id, quantity)
@@ -152,7 +152,7 @@ class CartPdoDataStore implements DataStoreInterface
         $stmt->execute([$productId, $qty, $qty]);
     }
 
-    public function removeItem(string $cartId, string $productId): void
+    public function removeItem(string $productId): void
     {
         $stmt = $this->pdo->prepare(
             "DELETE FROM cart_items WHERE product_id = ?"

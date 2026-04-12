@@ -3,7 +3,7 @@ ob_start();
 $prefix = $baseUrl.'/product';
 ?>
 
-<h1>Erreur Product</h1>
+<h1>Erreur produit</h1>
 <div class="error"><?= htmlspecialchars($message) ?></div>
 <a href="<?= $prefix ?>" class="btn">Retour à la liste</a>
 

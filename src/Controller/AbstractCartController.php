@@ -86,10 +86,10 @@ abstract class AbstractCartController
             $qty = (int) $qty;
             if ($qty <= 0) {
                 // Supprimer le produit du panier si quantité <= 0
-                $this->store->removeItem($cartId, $productId);
+                $this->store->removeItem($productId);
             } else {
                 // Ajouter ou mettre à jour la quantité
-                $this->store->addOrUpdateItem($cartId, $productId, $qty);
+                $this->store->addOrUpdateItem($productId, $qty);
             }
         }
 

@@ -3,7 +3,7 @@ ob_start();
 $prefix = $baseUrl.'/product';
 ?>
     <br>
-    <h1>Liste des Produits</h1>
+    <h1>Liste des produits</h1>
 
     <?php if (isset($_GET['error'])): ?>
         <div class="error">
