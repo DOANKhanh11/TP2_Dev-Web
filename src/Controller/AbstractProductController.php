@@ -133,9 +133,9 @@ abstract class AbstractProductController
 
     public function delete($id)
     {
-        $this->store->delete($id);
-        $product = $this->store->getById($id);
+        $product = $this->store->getById($id);  
         $this->logger->info('Produit supprimé', ['id' => $id, 'nom' => $product['name'] ?? 'inconnu']);
+        $this->store->delete($id);              
         return new RedirectResponse($this->baseUrl . '/product');
     }
 }
