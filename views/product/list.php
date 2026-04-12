@@ -120,6 +120,10 @@ $prefix = $baseUrl.'/product';
                     <?php else: ?>
                     <span class="text-muted">Rupture de stock</span>
                     <?php endif; ?>
+                    <form method="POST" action="<?= $prefix ?>/<?= $product['id'] ?>/delete" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>
+                    </form>
                 </td>
             </tr>
         <?php endforeach; ?>

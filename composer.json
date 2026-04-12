@@ -6,12 +6,15 @@
         "psr-4": {
             "Controllers\\": "src/Controller/",
             "Models\\": "src/Model/",
-            "Util\\": "src/util/"
+            "Util\\": "src/util/",
+            "Monolog\\": "vendor/monolog/monolog/src/Monolog/",
+            "Psr\\Log\\": "vendor/psr/log/src/"
         }
     },
     "require": {
         "symfony/routing": "^7.4",
         "symfony/http-foundation": "^7.4",
-        "fakerphp/faker": "^1.24"
+        "fakerphp/faker": "^1.24",
+        "monolog/monolog": "^3.7"
     }
 }

@@ -4,16 +4,26 @@ namespace Controllers;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Util\View;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Formatter\LineFormatter;
 
 abstract class AbstractProductController
 {
     protected $store;
     protected $view;
     protected $baseUrl;
+    protected $logger;
 
     public function __construct()
     {
         $this->view = new View();
+        $this->logger = new Logger('produits');
+        $handler = new StreamHandler(__DIR__ . '/../../logs/app.log', Level::Debug);
+        $formatter = new \Monolog\Formatter\LineFormatter(null, null, true, true);
+        $handler->setFormatter($formatter);
+        $this->logger->pushHandler($handler);
         $this->initStore();
     }
 
@@ -78,6 +88,7 @@ abstract class AbstractProductController
             'weight_g'     => intval($request->request->get('weight_g', 0)),
             'tag'          => $request->request->get('tag', ''),
         ]);
+        $this->logger->info('Produit ajouté', ['nom' => $name]);
         return new RedirectResponse($this->baseUrl . '/product');
     }
 
@@ -110,6 +121,7 @@ abstract class AbstractProductController
             'weight_g'     => intval($request->request->get('weight_g', 0)),
             'tag'          => $request->request->get('tag', ''),
         ]);
+        $this->logger->info('Produit modifié', ['id' => $id, 'nom' => $request->request->get('name')]);
         if (!$product) {
             return $this->view->render('product/error', [
                 'baseUrl' => $this->baseUrl,
@@ -122,6 +134,8 @@ abstract class AbstractProductController
     public function delete($id)
     {
         $this->store->delete($id);
+        $product = $this->store->getById($id);
+        $this->logger->info('Produit supprimé', ['id' => $id, 'nom' => $product['name'] ?? 'inconnu']);
         return new RedirectResponse($this->baseUrl . '/product');
     }
 }

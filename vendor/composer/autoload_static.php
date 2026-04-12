@@ -24,10 +24,12 @@ class ComposerStaticInit394df8b93f672e8c8f44131ef2028e9b
         ),
         'P' =>
         array (
+            'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
         ),
         'M' =>
         array (
+            'Monolog\\' => 8,
             'Models\\' => 7,
         ),
         'F' =>
@@ -57,9 +59,17 @@ class ComposerStaticInit394df8b93f672e8c8f44131ef2028e9b
         array (
             0 => __DIR__ . '/..' . '/symfony/http-foundation',
         ),
+        'Psr\\Log\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/src',
+        ),
         'Psr\\Container\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'Monolog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Models\\' =>
         array (

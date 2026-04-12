@@ -1,0 +1,3 @@
+[2026-04-12T11:12:37.414264+00:00] produits.INFO: Produit ajouté {"nom":"test"} []
+[2026-04-12T11:15:18.371787+00:00] produits.INFO: Produit supprimé {"id":"69","nom":"inconnu"} []
+[2026-04-12T11:24:11.829444+00:00] produits.INFO: Produit ajouté {"nom":"Test log"} 
