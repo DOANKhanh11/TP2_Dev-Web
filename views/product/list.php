@@ -61,11 +61,11 @@ $prefix = $baseUrl.'/product';
 
         <input type="number" name="price_min" placeholder="Prix min"
                value="<?= htmlspecialchars($filters['price_min'] ?? '') ?>"
-               style="width:100px" step="1000">
+               style="width:100px" step="1">
 
         <input type="number" name="price_max" placeholder="Prix max"
                value="<?= htmlspecialchars($filters['price_max'] ?? '') ?>"
-               style="width:100px" step="1000">
+               style="width:100px" step="1">
 
         <button type="submit" class="btn btn-primary">🔍 Rechercher</button>
         <a href="<?= $prefix ?>" class="btn">Réinitialiser</a>

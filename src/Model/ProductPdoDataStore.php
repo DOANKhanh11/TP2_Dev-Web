@@ -70,7 +70,7 @@ class ProductPdoDataStore implements DataStoreInterface
         return $items;
     }
 
-    public function search(array $f)
+    public function search(array $f) //Récupérer les filtres
     {
         $where = []; $params = [];
         if (!empty($f['name']))     { $where[] = 'name LIKE ?';  $params[] = '%'.$f['name'].'%'; }
